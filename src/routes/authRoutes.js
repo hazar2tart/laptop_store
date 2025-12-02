@@ -7,12 +7,46 @@ const router = express.Router();
 
 // دالة توليد JWT من الـ user id
 function generateToken(userId) {
-  return jwt.sign(
-    { id: userId },
-    process.env.JWT_SECRET,              // لازم يكون موجود في .env
-    { expiresIn: process.env.JWT_EXPIRE || '30d' }
-  );
+  try {
+    console.log('🔐 generateToken called with userId =', userId);
+
+    // نطبع الـ secret ونشوف إذا موجود
+    console.log('🔐 JWT_SECRET defined?', !!process.env.JWT_SECRET);
+
+    // نطبع القيمة الخام اللي جاية من env بالضبط
+    console.log(
+      '🔐 raw JWT_EXPIRE from env =',
+      JSON.stringify(process.env.JWT_EXPIRE)
+    );
+
+    // نحضّر expiresIn بشكل نظيف
+    let expiresIn = process.env.JWT_EXPIRE;
+
+    if (!expiresIn) {
+      expiresIn = '30d';
+      console.log('ℹ️ JWT_EXPIRE is empty, fallback to "30d"');
+    } else {
+      expiresIn = String(expiresIn).trim(); // نشيل مسافات و newlines
+    }
+
+    console.log('✅ final expiresIn used =', expiresIn, 'typeof =', typeof expiresIn);
+
+    const payload = { id: userId };
+    console.log('🔐 JWT payload =', payload);
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
+
+    console.log('✅ JWT token generated successfully');
+    return token;
+
+  } catch (err) {
+    console.error('❌ ERROR inside generateToken:', err);
+    // نرميها لنفس الـ catch في login عشان ترجع 500
+    throw err;
+  }
 }
+
+
 
 /**
  * @route   POST /api/auth/register
@@ -110,8 +144,13 @@ router.post('/login', async (req, res) => {
 
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({
+        message: 'Server error',
+        error: error.message,
+        stack: error.stack
+      });
   }
 });
 
 module.exports = router;
+  

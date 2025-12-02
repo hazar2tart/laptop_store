@@ -1,20 +1,21 @@
+// config/db.js
 const mongoose = require('mongoose');
 
-async function connectDB() {
-  const MONGODB_URI = process.env.MONGODB_URI;
+const connectDB = async () => {
+  const uri = process.env.MONGODB_URI; // 👈 MUST match the name in .env
 
-  if (!MONGODB_URI) {
-    console.error("❌ MONGODB_URI is not defined");
+  if (!uri) {
+    console.error('❌ MONGODB_URI is not defined');
     process.exit(1);
   }
 
   try {
-    await mongoose.connect(MONGODB_URI);
-    console.log("✅ Connected to MongoDB (Atlas)");
+    await mongoose.connect(uri);
+    console.log('✅ MongoDB connected');
   } catch (err) {
-    console.error("❌ MongoDB connection error:", err.message);
-    process.exit(1);
+    console.error('❌ MongoDB connection error:', err.message);
+    process.exit(1);mn
   }
-}
+};
 
 module.exports = connectDB;

@@ -1,6 +1,7 @@
 // src/index.js
 require('dotenv').config();
 
+console.log('🔍 MONGODB_URI from .env =', process.env.MONGODB_URI);
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
