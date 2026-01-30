@@ -82,6 +82,13 @@ app.use('/api/search', searchRoutes);
 app.get('/', (req, res) => {
   res.json({ message: 'Ecommerce API is running 🚀' });
 });
+app.get('/health', (req, res) => {
+  const mongoose = require('mongoose');
+  res.json({
+    ok: true,
+    dbState: mongoose.connection.readyState
+  });
+});
 
 const PORT = process.env.PORT || 5000;
 
