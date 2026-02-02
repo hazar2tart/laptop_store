@@ -16,3 +16,11 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# secrets
+src/serviceAccountKey.json
+**/serviceAccountKey.json
+.env
+*.pem
+*.p12
+
