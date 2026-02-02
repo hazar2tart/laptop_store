@@ -4,7 +4,8 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const router = express.Router();
-const admin = require("../firebaseAdmin"); // عدّل المسار حسب مكان الملف
+const getAdmin = require("../firebaseAdmin");
+// عدّل المسار حسب مكان الملف
 
 router.post("/oauth/google", async (req, res) => {
   try {
@@ -15,7 +16,11 @@ router.post("/oauth/google", async (req, res) => {
     }
 
     // ✅ تحقق من Firebase ID token
-    const decoded = await admin.auth().verifyIdToken(idToken);
+  const admin = getAdmin();
+  console.log("🧪 [GoogleOAuth] admin.apps =", admin.apps.length);
+
+  const decoded = await admin.auth().verifyIdToken(idToken);
+
 
     // decoded.email, decoded.name, decoded.uid
     const email = decoded.email;
@@ -206,4 +211,6 @@ router.get('/ping', (req, res) => {
 });
 
 module.exports = router;
+
+
   
