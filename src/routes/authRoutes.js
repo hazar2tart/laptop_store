@@ -201,6 +201,9 @@ router.post('/login', async (req, res) => {
       });
   }
 });
+router.get('/ping', (req, res) => {
+  res.json({ ok: true, route: 'authRoutes works' });
+});
 
 module.exports = router;
   
