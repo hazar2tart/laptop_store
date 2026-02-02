@@ -1,24 +1,36 @@
+// src/firebaseAdmin.js
 const admin = require("firebase-admin");
 
-console.log("🧪 [Firebase] ENV project?", !!process.env.FIREBASE_PROJECT_ID);
-console.log("🧪 [Firebase] ENV email?", !!process.env.FIREBASE_CLIENT_EMAIL);
-console.log("🧪 [Firebase] ENV key len?", (process.env.FIREBASE_PRIVATE_KEY || "").length);
+function initFirebase() {
+  if (admin.apps.length) return admin;
 
-try {
-  if (!admin.apps.length) {
-    admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: (process.env.FIREBASE_PRIVATE_KEY || "").replace(/\\n/g, "\n"),
-      }),
-    });
-    console.log("✅ Firebase Admin initialized");
-  } else {
-    console.log("ℹ️ Firebase Admin already initialized");
+  const projectId = (process.env.FIREBASE_PROJECT_ID || "").trim();
+  const clientEmail = (process.env.FIREBASE_CLIENT_EMAIL || "").trim();
+
+  const privateKeyRaw = process.env.FIREBASE_PRIVATE_KEY || "";
+  const privateKey = privateKeyRaw.replace(/\\n/g, "\n").trim();
+
+  console.log("🧪 [Firebase] project?", !!projectId);
+  console.log("🧪 [Firebase] email?", !!clientEmail);
+  console.log("🧪 [Firebase] keyLen(raw)?", privateKeyRaw.length);
+  console.log("🧪 [Firebase] keyLen(final)?", privateKey.length);
+  console.log("🧪 [Firebase] key starts?", privateKey.startsWith("-----BEGIN PRIVATE KEY-----"));
+  console.log("🧪 [Firebase] key ends?", privateKey.endsWith("-----END PRIVATE KEY-----"));
+
+  if (!projectId || !clientEmail || !privateKey) {
+    throw new Error("Missing FIREBASE_* env vars");
   }
-} catch (e) {
-  console.log("❌ Firebase init ERROR:", e.message);
+
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId,
+      clientEmail,
+      privateKey,
+    }),
+  });
+
+  console.log("✅ Firebase Admin initialized");
+  return admin;
 }
 
-module.exports = admin;
+module.exports = initFirebase();
