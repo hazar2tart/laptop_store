@@ -1,21 +1,35 @@
-const admin = require("firebase-admin");
-
-console.log("🔥 Firebase ENV CHECK", {
-  project: !!process.env.FIREBASE_PROJECT_ID,
-  email: !!process.env.FIREBASE_CLIENT_EMAIL,
-  key: !!process.env.FIREBASE_PRIVATE_KEY,
-});
+const admin = require('firebase-admin');
 
 if (!admin.apps.length) {
+  console.log('🔥 Initializing Firebase Admin from ENV');
+
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+  if (!projectId || !clientEmail || !privateKey) {
+    console.error('❌ Firebase ENV missing', {
+      projectId: !!projectId,
+      clientEmail: !!clientEmail,
+      privateKey: !!privateKey,
+    });
+    throw new Error('Firebase Admin ENV variables are missing');
+  }
+
+  // مهم جدًا: معالجة \n
+  privateKey = privateKey.replace(/\\n/g, '\n');
+
   admin.initializeApp({
     credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+      projectId,
+      clientEmail,
+      privateKey,
     }),
   });
 
-  console.log("✅ Firebase Admin initialized (ENV)");
+  console.log('✅ Firebase Admin initialized successfully');
+} else {
+  console.log('ℹ️ Firebase Admin already initialized');
 }
 
 module.exports = admin;
