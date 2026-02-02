@@ -4,6 +4,56 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const router = express.Router();
+const admin = require("../firebaseAdmin"); // عدّل المسار حسب مكان الملف
+
+router.post("/oauth/google", async (req, res) => {
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      return res.status(400).json({ message: "idToken is required" });
+    }
+
+    // ✅ تحقق من Firebase ID token
+    const decoded = await admin.auth().verifyIdToken(idToken);
+
+    // decoded.email, decoded.name, decoded.uid
+    const email = decoded.email;
+    const name = decoded.name || "Google User";
+
+    if (!email) {
+      return res.status(400).json({ message: "Google account has no email" });
+    }
+
+    // ✅ هات أو أنشئ User في MongoDB
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      user = await User.create({
+        name,
+        email,
+        password: "GOOGLE_OAUTH", // أو خليه null وعدّل schema
+        role: "client",
+      });
+    }
+
+    const token = generateToken(user._id);
+
+    return res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      token,
+    });
+  } catch (error) {
+    console.error("Google OAuth error:", error);
+    return res.status(500).json({
+      message: "Google OAuth failed",
+      error: error.message,
+    });
+  }
+});
 
 // دالة توليد JWT من الـ user id
 function generateToken(userId) {
