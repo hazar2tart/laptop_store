@@ -1,23 +1,17 @@
-// src/firebaseAdmin.js
 const admin = require("firebase-admin");
 
-function must(name) {
-  if (!process.env[name]) {
-    throw new Error(`Missing ENV ${name}`);
-  }
-  return process.env[name];
-}
+console.log("🔥 Firebase ENV CHECK", {
+  project: !!process.env.FIREBASE_PROJECT_ID,
+  email: !!process.env.FIREBASE_CLIENT_EMAIL,
+  key: !!process.env.FIREBASE_PRIVATE_KEY,
+});
 
 if (!admin.apps.length) {
-  const projectId = must("FIREBASE_PROJECT_ID");
-  const clientEmail = must("FIREBASE_CLIENT_EMAIL");
-  const privateKey = must("FIREBASE_PRIVATE_KEY").replace(/\\n/g, "\n");
-
   admin.initializeApp({
     credential: admin.credential.cert({
-      projectId,
-      clientEmail,
-      privateKey,
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
     }),
   });
 
