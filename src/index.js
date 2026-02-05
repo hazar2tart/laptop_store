@@ -50,21 +50,24 @@ mongoose.connection.on("error", (e) => console.error("❌ mongoose error:", e));
 /* =========================
    ✅ MIDDLEWARES
 ========================= */
-app.use(cors({
-  origin: true,
-  credentials: true,
-  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
-  allowedHeaders: ["Content-Type","Authorization"],
-}));
+/* =========================
+   ✅ MIDDLEWARES
+========================= */
 
-app.use((req, res, next) => {
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(204);
-  }
-  next();
-});
+// 1) CORS أولاً (لازم يكون قبل routes)
+app.use(
+  cors({
+    origin: true, // أو حط قائمة دوميناتك لاحقاً
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
+// 2) preflight لكل المسارات
+app.options("*", cors());
 
+// 3) parsers/logging
 app.use(express.json());
 app.use(morgan("dev"));
 
