@@ -55,19 +55,25 @@ mongoose.connection.on("error", (e) => console.error("❌ mongoose error:", e));
 ========================= */
 
 // 1) CORS أولاً (لازم يكون قبل routes)
+/* =========================
+   ✅ MIDDLEWARES
+========================= */
+
 app.use(
   cors({
-    origin: true, // أو حط قائمة دوميناتك لاحقاً
+    origin: true,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// 2) preflight لكل المسارات
-app.options("*", cors());
+// ✅ Express 5: عالج الـ preflight يدويًا بدون app.options("*")
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  next();
+});
 
-// 3) parsers/logging
 app.use(express.json());
 app.use(morgan("dev"));
 
